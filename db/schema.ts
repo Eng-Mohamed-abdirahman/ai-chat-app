@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, boolean, serial } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -86,4 +86,13 @@ export const message = pgTable("message", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const schema = { user, session, account, verification , conversation, message };
+// Fixed images table
+export const images = pgTable("images", {
+  id: serial("id").primaryKey(),
+  prompt: text("prompt").notNull(),
+  imageUrl: text("image_url").notNull(),
+  conversationId: text("conversation_id").notNull().references(() => conversation.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const schema = { user, session, account, verification, conversation, message, images };
