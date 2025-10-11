@@ -1,5 +1,6 @@
 import { db } from "@/db/drizzle";
-import {  conversation } from "@/db/schema";
+import {  conversation, message } from "@/db/schema";
+import { UIMessage } from "ai";
 import { desc, eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
 
@@ -34,4 +35,18 @@ export async function getConversation(conversationId: string, userId: string) {
   }
 
   return conv;
+}
+
+export async function loadChat(conversationId: string): Promise<UIMessage[]> {
+  const messages = await db
+    .select()
+    .from(message)
+    .where(eq(message.conversationId, conversationId))
+    .orderBy(message.createdAt);
+
+  return messages.map(msg => ({
+    id: msg.id,
+    role: msg.role as 'user' | 'assistant',
+    parts: [{ type: 'text' as const, text: msg.content }],
+  }));
 }
